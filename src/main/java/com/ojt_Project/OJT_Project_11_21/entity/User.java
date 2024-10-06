@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -12,13 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-@Table(name = "user", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
+@Table(name = "User", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "voucherExchanges"})
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "userid")
+    @Column(name = "userId")
     int userId;
+
+    @ManyToMany(mappedBy = "users")
+    private Collection<Exam> exams;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<QuestionBank> questionBanks;
 
     @Column(name = "fullname", length = 255, unique = true)
     String fullName;
@@ -38,8 +46,11 @@ public class User {
     @Column(name = "role", length = 50)
     String role;
 
+    @Column(name = "isVip")
+    boolean isVip ;
+
     @Column(name = "active")
-    int active;
+    int isBanned ;
 
     @Column(name = "otp", length = 10)
     String otp;

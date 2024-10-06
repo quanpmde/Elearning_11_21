@@ -32,7 +32,7 @@ public class AppilcationInitConfig {
                         .email("admin")
                         .password(passwordEncoder.encode("admin"))
                         .role(Role.ADMIN.name())
-                        .active(1)
+                        .isBanned(0)
                         .build();
                 userRepository.save(user);
                 log.warn("admin user has been created with default password: admin, please change it.");

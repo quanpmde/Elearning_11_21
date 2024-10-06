@@ -12,15 +12,17 @@ public enum ErrorCode {
     PHONE_INVALID(1006, "Number phone format invalid.", HttpStatus.BAD_REQUEST),
     UNAUTHORIZED(1007, "Access Denied", HttpStatus.FORBIDDEN),
     UNAUTHENTICATED(1008,"Unauthenticated", HttpStatus.UNAUTHORIZED),
-
-    CATEGORY_NOT_EXIST(1009,"Category not exist" ,HttpStatus.BAD_REQUEST ),
-    CATEGORY_EXISTED(1010,"Category has existed" ,HttpStatus.BAD_REQUEST ),
-    FOOD_NOT_EXIST(1011,"Food not exist",HttpStatus.BAD_REQUEST),
-    PRICE_INVALID(1012, "Price must be greater than 0", HttpStatus.BAD_REQUEST),
-    PASSWORD_NOT_MATCHER(1013,"Please enter correct old password", HttpStatus.BAD_REQUEST),
-    PASSWORD_NOT_MATCH(1013,"Do not match. Please enter correct password", HttpStatus.BAD_REQUEST),
-    OTP_INVALID(1014,"OTP invalid. Try again" ,HttpStatus.BAD_REQUEST ),
-    USER_IS_BANNED(1015,"User is banned.",HttpStatus.BAD_REQUEST);
+    PASSWORD_NOT_MATCHER(1009,"Please enter correct old password", HttpStatus.BAD_REQUEST),
+    PASSWORD_NOT_MATCH(1010,"Do not match. Please enter correct password", HttpStatus.BAD_REQUEST),
+    OTP_INVALID(1011,"OTP invalid. Try again" ,HttpStatus.BAD_REQUEST ),
+    USER_IS_BANNED(1012,"User is banned.",HttpStatus.BAD_REQUEST),
+    SUBJECT_NOT_EXISTED(1013,"SUBJECT_NOT_EXISTED",HttpStatus.BAD_REQUEST),
+    SUBJECT_ID_MUST_BE_PROVIDED(1014,"SUBJECT_ID_MUST_BE_PROVIDED",HttpStatus.BAD_REQUEST),
+    QUESTIONBANK_NOT_EXISTED(1015,"QUESTIONBANK_NOT_EXISTED",HttpStatus.BAD_REQUEST),
+    QUESTIONBANK_ID_MUST_BE_PROVIDED(1016,"QUESTIONBANK_ID_MUST_BE_PROVIDED",HttpStatus.BAD_REQUEST),
+    QUESTION_NOT_EXISTED(1017,"QUESTION_NOT_EXISTED",HttpStatus.BAD_REQUEST),
+    ANSWER_NOT_EXISTED(1017,"ANSWER_NOT_EXISTED",HttpStatus.BAD_REQUEST),
+    EXAM_NOT_EXISTED(1017,"EXAM_NOT_EXISTED",HttpStatus.BAD_REQUEST);
 
     private int code;
     private String message;

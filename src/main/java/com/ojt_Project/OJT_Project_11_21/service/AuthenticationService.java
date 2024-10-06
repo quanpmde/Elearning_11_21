@@ -33,7 +33,7 @@ public class AuthenticationService {
                 () -> new AppException(ErrorCode.EMAIL_NOT_EXISTED)
 
         );
-        if(user.getActive()==0){
+        if(user.getIsBanned() == 1){
             throw new AppException(ErrorCode.USER_IS_BANNED);
         }
         boolean authenticated = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
@@ -51,7 +51,7 @@ public class AuthenticationService {
                     .email(email)
                     .fullName(name)
                     .userName(email)
-                    .active(1)
+                    .isBanned(0)
                     .role(Role.STUDENT.name())
                     .build();
             return userRepository.save(newUser);
