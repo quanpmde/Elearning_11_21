@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -12,9 +14,17 @@ import java.util.List;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ExamResponse {
+    private int userId;
     private int examId;
     private String examName;
+    private String examPassword;
+    private int examTotalQuestions;
     private int examTimer;
     private int examAttempt;
+    private LocalDateTime examStartDate;
+    private LocalDateTime examEndDate;
     private List<QuestionBankResponse> questionBanks;
+    private List<QuestionResponse> questions;
+    private String examStatus;
+
 }

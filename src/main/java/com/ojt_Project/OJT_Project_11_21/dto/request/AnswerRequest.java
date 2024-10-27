@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AnswerRequest {
     private int questionId;
+    private int answerId;
     private String answerDescription;
     private int answerCorrect;
     private String answerImage;

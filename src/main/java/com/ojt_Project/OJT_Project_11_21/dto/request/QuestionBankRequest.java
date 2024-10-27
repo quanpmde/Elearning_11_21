@@ -12,7 +12,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class QuestionBankRequest {
+    private int userId;
     private int questionBankID;
+    private String questionBankName;
     private LocalDateTime questionBankDate;
     private String questionBankDescription;
     private String questionBankStatus;

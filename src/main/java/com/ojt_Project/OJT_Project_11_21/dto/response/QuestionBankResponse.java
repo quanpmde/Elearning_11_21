@@ -14,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class QuestionBankResponse {
     private int questionBankID;
+    private String questionBankName;
     private LocalDateTime questionBankDate;
     private String questionBankDescription;
     private String questionBankStatus;

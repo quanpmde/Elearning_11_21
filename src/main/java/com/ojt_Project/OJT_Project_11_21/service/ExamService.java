@@ -2,22 +2,30 @@ package com.ojt_Project.OJT_Project_11_21.service;
 
 import com.ojt_Project.OJT_Project_11_21.dto.request.ExamRequest;
 import com.ojt_Project.OJT_Project_11_21.dto.response.ExamResponse;
+import com.ojt_Project.OJT_Project_11_21.dto.response.QuestionResponse;
 import com.ojt_Project.OJT_Project_11_21.entity.Exam;
+import com.ojt_Project.OJT_Project_11_21.entity.Question;
 import com.ojt_Project.OJT_Project_11_21.entity.QuestionBank;
+import com.ojt_Project.OJT_Project_11_21.entity.User;
 import com.ojt_Project.OJT_Project_11_21.exception.AppException;
 import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.ExamMapper;
 import com.ojt_Project.OJT_Project_11_21.mapper.QuestionBankMapper;
+import com.ojt_Project.OJT_Project_11_21.mapper.QuestionMapper;
 import com.ojt_Project.OJT_Project_11_21.repository.ExamRepository;
 import com.ojt_Project.OJT_Project_11_21.repository.QuestionBankRepository;
+import com.ojt_Project.OJT_Project_11_21.repository.QuestionRepository;
+import com.ojt_Project.OJT_Project_11_21.repository.UserRepository;
+import com.ojt_Project.OJT_Project_11_21.util.DateUtil;
+import com.ojt_Project.OJT_Project_11_21.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,17 +38,128 @@ public class ExamService {
     private QuestionBankMapper questionBankMapper;
     @Autowired
     private QuestionBankRepository questionBankRepository;
+    @Autowired
+    private QuestionMapper questionMapper;
+    @Autowired
+    private QuestionRepository questionRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private DateUtil dateUtil;
 
     public ExamResponse createNewExam(ExamRequest request) throws IOException {
+        // Tìm user theo userId
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
+
+        // Lấy tất cả các QuestionBank của user
+        List<QuestionBank> userQuestionBanks = questionBankRepository.findByUser(user);
+
+        if (userQuestionBanks.isEmpty()){
+            throw new AppException(ErrorCode.QUESTIONBANK_IS_NOT_FOUNDED);
+        }
+
+        // Kiểm tra questionIds có thuộc về QuestionBank của User không
+        List<Question> selectedQuestions = questionRepository.findAllById(request.getQuestionIds());
+
+        for (Question question : selectedQuestions) {
+            boolean belongsToUserBank = userQuestionBanks.stream()
+                    .anyMatch(qb -> qb.getQuestionBankID() == question.getQuestionBank().getQuestionBankID());
+            if (!belongsToUserBank) {
+                throw new AppException(ErrorCode.SELECTED_QUESTIONS_INVALID);
+            }
+        }
+
+        // Tạo mới Exam từ request
         Exam exam = examMapper.toExam(request);
 
-        List<QuestionBank> questionBanks = questionBankRepository.findAllById(request.getQuestionBankIds());
-        if(questionBanks.isEmpty() || questionBanks.size() !=request.getQuestionBankIds().size()){
-            throw new AppException(ErrorCode.QUESTIONBANK_NOT_EXISTED);
+        // Thiết lập trạng thái ban đầu của bài thi
+        if (LocalDateTime.now().isBefore(exam.getExamStartDate())) {
+            exam.setExamStatus("pending");
+        } else if (LocalDateTime.now().isAfter(exam.getExamEndDate())) {
+            exam.setExamStatus("overdue");
+        } else {
+            exam.setExamStatus("active");
         }
-        exam.setQuestionBanks(questionBanks);
 
-        return examMapper.toExamResponse(examRepository.save(exam));
+        exam.setUsers(List.of(user));
+        exam.setQuestions(selectedQuestions);
+
+        // Thêm các câu hỏi random từ questionBank
+        if (request.getRandomQuestionBanks() != null && !request.getRandomQuestionBanks().isEmpty()) {
+            Map<QuestionBank, Integer> randomQuestionsMap = request.getRandomQuestionBanks().entrySet().stream()
+                    .collect(Collectors.toMap(
+                            entry -> questionBankRepository.findById(entry.getKey())
+                                    .orElseThrow(() -> new AppException(ErrorCode.QUESTIONBANK_IS_NOT_FOUNDED)),
+                            Map.Entry::getValue
+                    ));
+
+            addRandomQuestionsToExam(exam, randomQuestionsMap);
+        }
+
+
+        ExamResponse examResponse = examMapper.toExamResponse(examRepository.save(exam));
+        examResponse.setUserId(user.getUserId());
+
+        return examResponse;
+    }
+
+    public ExamResponse addQuestionsFromFileToExamOrBank(String filePath, int examId, boolean isForExam) throws IOException {
+        // Tìm exam theo examId
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_EXISTED));
+
+        // Đọc câu hỏi từ file
+        List<Question> questionsFromFile = FileUtil.readQuestionFromFile(filePath);
+
+        if (isForExam) {
+            // Thêm vào Exam mới tạo
+            exam.getQuestions().addAll(questionsFromFile);
+            exam.setExamTotalQuestions(exam.getQuestions().size());
+
+            // Thêm các câu hỏi vào QuestionBank "Chưa có tiêu đề"
+            QuestionBank questionBank = questionBankRepository.findByQuestionBankName("Chưa có tiêu đề");
+            if (questionBank == null) {
+                questionBank = new QuestionBank();
+                questionBank.setQuestionBankDescription("Chưa có tiêu đề");
+                questionBank.setQuestions(new ArrayList<>());
+            }
+            // Thêm câu hỏi vào QuestionBank
+            questionBank.getQuestions().addAll(questionsFromFile);
+            questionBankRepository.save(questionBank);
+
+            // Lưu Exam
+            examRepository.save(exam);
+        }
+        // Trả về ExamResponse đã cập nhật
+        return examMapper.toExamResponse(exam);
+    }
+
+    public void addManualQuestionToExam(Exam exam, List<Integer> questionIds){
+        List<Question> manualQuestions = questionRepository.findAllById(questionIds);
+        exam.getQuestions().addAll(manualQuestions);
+        // Cập nhật tổng số câu hỏi
+        exam.setExamTotalQuestions(exam.getQuestions().size());
+    }
+
+    public void addRandomQuestionsToExam(Exam exam, Map<QuestionBank, Integer> randomQuestionsMap){
+        for (Map.Entry<QuestionBank, Integer> entry : randomQuestionsMap.entrySet()){
+            QuestionBank questionBank = entry.getKey();
+            int numberOfRandomQuestions = entry.getValue();
+            List<Question> availableQuestions = questionBank.getQuestions();
+
+            //Trường hợp số câu trong questionBank không đủ số lượng cần random
+            if (availableQuestions.size() < numberOfRandomQuestions){
+                throw new AppException(ErrorCode.NOT_ENOUGH_QUESTION);
+            }
+
+            Collections.shuffle(availableQuestions); // Trộn ngẫu nhiên câu hỏi
+            List<Question> selectedQuestions = availableQuestions.subList(0,numberOfRandomQuestions);
+            exam.getQuestions().addAll(selectedQuestions);
+        }
+
+        // Cập nhật tổng số câu hỏi
+        exam.setExamTotalQuestions(exam.getQuestions().size());
     }
 
     public List<ExamResponse> getAllExams() {
@@ -61,6 +180,15 @@ public class ExamService {
             });
         });
 
+        // Thiết lập trạng thái ban đầu của bài thi
+        if (LocalDateTime.now().isBefore(exam.getExamStartDate())) {
+            exam.setExamStatus("pending");
+        } else if (LocalDateTime.now().isAfter(exam.getExamEndDate())) {
+            exam.setExamStatus("overdue");
+        } else {
+            exam.setExamStatus("active");
+        }
+
         // Ánh xạ vào DTO để trả về cho người dùng
         ExamResponse examResponse = examMapper.toExamResponse(exam);
 
@@ -72,15 +200,56 @@ public class ExamService {
         return examResponse;
     }
 
+    public List<ExamResponse> getExamsByUserId(int userId) {
+        // Tìm user theo userId
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
+
+        // Tìm các exam thuộc về user này
+        List<Exam> exams = examRepository.findByUsersContaining(user);
+
+        // Chuyển đổi danh sách exam thành danh sách ExamResponse
+        return exams.stream()
+                .map(examMapper::toExamResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    public ExamResponse getTopTenQuestionsFromExam(int examId) {
+        Exam exam = examRepository.findById(examId)
+                .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_EXISTED));
+
+        // Lấy tối đa 10 câu hỏi
+        List<Question> topTenQuestions = exam.getQuestions().stream()
+                .limit(10) // Lấy tối đa 10 câu hỏi
+                .collect(Collectors.toList());
+
+        // Chuyển đổi danh sách câu hỏi thành danh sách QuestionResponse
+        List<QuestionResponse> questionResponses = topTenQuestions.stream()
+                .map(questionMapper::toQuestionResponse) // Giả sử bạn có một questionMapper
+                .collect(Collectors.toList());
+
+        // Tạo một ExamResponse mới
+        ExamResponse examResponse = examMapper.toExamResponse(exam);
+        examResponse.setQuestions(questionResponses); // Thêm danh sách câu hỏi vào ExamResponse
+
+        return examResponse;
+    }
+
     public ExamResponse updateExamById(int examId, ExamRequest request) {
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_EXISTED));
 
-        List<QuestionBank> questionBanks = questionBankRepository.findAllById(request.getQuestionBankIds());
-        if (questionBanks.isEmpty() || questionBanks.size() != request.getQuestionBankIds().size()) {
-            throw new AppException(ErrorCode.QUESTIONBANK_NOT_EXISTED);
+        // Kiểm tra các câu hỏi mới có hợp lệ hay không
+        List<Question> selectedQuestions = questionRepository.findAllById(request.getQuestionIds());
+        for (Question question : selectedQuestions) {
+            if (question.getQuestionBank() == null ||
+                    !exam.getQuestions().stream().map(Question::getQuestionBank).collect(Collectors.toSet()).contains(question.getQuestionBank())) {
+                throw new AppException(ErrorCode.SELECTED_QUESTIONS_INVALID);
+            }
         }
-        exam.setQuestionBanks(questionBanks);
+
+        exam.setQuestions(selectedQuestions);
 
         return examMapper.toExamResponse(examRepository.save(exam));
     }

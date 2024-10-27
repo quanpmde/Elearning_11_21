@@ -46,7 +46,7 @@ public class UserService{
 
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.STUDENT.name());
+        user.setRole(Role.USER.name());
 //        user.setOtp(otp);
         user.setGenerateOtpTime(LocalDateTime.now());
 

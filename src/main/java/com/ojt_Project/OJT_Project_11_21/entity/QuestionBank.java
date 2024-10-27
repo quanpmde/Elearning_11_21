@@ -20,7 +20,7 @@ public class QuestionBank {
     private int questionBankID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId",nullable = true)
+    @JoinColumn(name = "userId",nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -32,6 +32,9 @@ public class QuestionBank {
 
     @ManyToMany(mappedBy = "questionBanks", cascade = CascadeType.ALL)
     private List<Exam> exams;
+
+    @Column(name = "questionBankName")
+    private String questionBankName;
 
     @Column(name = "questionBankDate")
     private LocalDateTime questionBankDate;

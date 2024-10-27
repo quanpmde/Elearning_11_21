@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -20,7 +21,7 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping
-    public ApiResponse<AnswerResponse> createNewAnswer(@RequestBody @Valid AnswerRequest request) {
+    public ApiResponse<AnswerResponse> createNewAnswer(@RequestBody @Valid AnswerRequest request) throws IOException {
         return ApiResponse.<AnswerResponse>builder()
                 .result(answerService.createNewAnswer(request))
                 .build();

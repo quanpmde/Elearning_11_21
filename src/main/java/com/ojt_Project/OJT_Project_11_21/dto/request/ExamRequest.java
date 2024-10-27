@@ -1,22 +1,30 @@
-package com.ojt_Project.OJT_Project_11_21.dto.request;
+    package com.ojt_Project.OJT_Project_11_21.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+    import lombok.AllArgsConstructor;
+    import lombok.Builder;
+    import lombok.Data;
+    import lombok.RequiredArgsConstructor;
 
-import java.util.List;
+    import java.time.LocalDateTime;
+    import java.util.List;
+    import java.util.Map;
 
-@Data
-@Builder
-@AllArgsConstructor
-@RequiredArgsConstructor
-public class ExamRequest {
-    private int examId;
-    private String examName;
-    private int examTimer;
-    private int examAttempt;
-    private List<Integer> questionBankIds;
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @RequiredArgsConstructor
+    public class ExamRequest {
+        private int userId;
+        private int examId;
+        private String examName;
+        private String examPassword;
+        private int examTotalQuestions;
+        private int examTimer;
+        private int examAttempt;
+        private String examStatus;
+        private LocalDateTime examStartDate;
+        private LocalDateTime examEndDate;
+        private List<Integer> questionIds;
+        private Map<Integer, Integer> randomQuestionBanks;
 
-
-}
+    }

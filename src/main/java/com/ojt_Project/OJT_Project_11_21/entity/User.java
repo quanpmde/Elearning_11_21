@@ -28,6 +28,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<QuestionBank> questionBanks;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Test> tests;
+
     @Column(name = "fullname", length = 255, unique = true)
     String fullName;
 

@@ -11,7 +11,7 @@ import org.mapstruct.MappingTarget;
 public interface AnswerMapper {
     @Mapping(source = "questionId", target = "question.questionId")
     Answer toAnswer(AnswerRequest request);
-
+    @Mapping(source = "question.questionId", target = "questionId")
     AnswerResponse toAnswerResponse(Answer answer);
 
     @Mapping(source = "questionId", target = "question.questionId")

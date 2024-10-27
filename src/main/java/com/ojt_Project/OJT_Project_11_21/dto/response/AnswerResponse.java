@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class AnswerResponse {
+    private int questionId;
     private int answerId;
     private String answerDescription;
     private int answerCorrect;

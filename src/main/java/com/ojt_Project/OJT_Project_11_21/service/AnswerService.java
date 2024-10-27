@@ -3,14 +3,17 @@ package com.ojt_Project.OJT_Project_11_21.service;
 import com.ojt_Project.OJT_Project_11_21.dto.request.AnswerRequest;
 import com.ojt_Project.OJT_Project_11_21.dto.response.AnswerResponse;
 import com.ojt_Project.OJT_Project_11_21.entity.Answer;
+import com.ojt_Project.OJT_Project_11_21.entity.Question;
 import com.ojt_Project.OJT_Project_11_21.exception.AppException;
 import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.AnswerMapper;
 import com.ojt_Project.OJT_Project_11_21.repository.AnswerRepository;
+import com.ojt_Project.OJT_Project_11_21.repository.QuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -20,10 +23,18 @@ public class AnswerService {
     private AnswerMapper answerMapper;
     @Autowired
     private AnswerRepository answerRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
 
-    public AnswerResponse createNewAnswer(AnswerRequest request) {
+    public AnswerResponse createNewAnswer(AnswerRequest request) throws IOException {
+        Question question = questionRepository.findById(request.getQuestionId())
+                .orElseThrow(() -> new AppException(ErrorCode.QUESTION_NOT_EXISTED));
+
         Answer answer = answerMapper.toAnswer(request);
-        return answerMapper.toAnswerResponse(answerRepository.save(answer));
+        answer.setQuestion(question);
+
+        AnswerResponse answerResponse = answerMapper.toAnswerResponse(answerRepository.save(answer));
+        return answerResponse;
     }
 
     public List<AnswerResponse> getAllAnswers() {
@@ -36,7 +47,8 @@ public class AnswerService {
     public AnswerResponse getAnswerById(int answerId) {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
-        return answerMapper.toAnswerResponse(answer);
+        AnswerResponse answerResponse = answerMapper.toAnswerResponse(answerRepository.save(answer));
+        return answerResponse;
     }
 
     public AnswerResponse updateAnswerById(int answerId, AnswerRequest request) {

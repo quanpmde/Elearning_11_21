@@ -4,15 +4,18 @@ import com.ojt_Project.OJT_Project_11_21.dto.request.QuestionBankRequest;
 import com.ojt_Project.OJT_Project_11_21.dto.response.QuestionBankResponse;
 import com.ojt_Project.OJT_Project_11_21.dto.response.SubjectResponse;
 import com.ojt_Project.OJT_Project_11_21.entity.QuestionBank;
+import com.ojt_Project.OJT_Project_11_21.entity.User;
 import com.ojt_Project.OJT_Project_11_21.exception.AppException;
 import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.QuestionBankMapper;
 import com.ojt_Project.OJT_Project_11_21.repository.QuestionBankRepository;
+import com.ojt_Project.OJT_Project_11_21.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -22,9 +25,19 @@ public class QuestionBankService {
     private QuestionBankMapper questionBankMapper;
     @Autowired
     private QuestionBankRepository questionBankRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public QuestionBankResponse createNewQuestionBank(QuestionBankRequest request) throws IOException {
+        // Kiểm tra xem userId có tồn tại không
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
+
+        // Ánh xạ request thành QuestionBank và thiết lập user
         QuestionBank questionBank = questionBankMapper.toQuestionBank(request);
+        questionBank.setUser(user);  // Thiết lập user
+        questionBank.setQuestionBankDate(LocalDateTime.now());
+
         return questionBankMapper.toQuestionBankResponse(questionBankRepository.save(questionBank));
     }
 
@@ -47,10 +60,16 @@ public class QuestionBankService {
         return questionBankMapper.toQuestionBankResponse(questionBank);
     }
 
-    public QuestionBankResponse updateQuestionBankById(int questionBankId,QuestionBankRequest request){
+    public QuestionBankResponse updateQuestionBankById(int questionBankId, QuestionBankRequest request) {
         QuestionBank questionBank = questionBankRepository.findById(questionBankId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTIONBANK_NOT_EXISTED));
-        questionBankMapper.updateQuestionBankFromRequest(questionBank,request);
+
+        // Nếu cần cập nhật user thì tìm user theo userId
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
+
+        questionBank.setUser(user);  // Cập nhật user
+        questionBankMapper.updateQuestionBankFromRequest(questionBank, request);
 
         return questionBankMapper.toQuestionBankResponse(questionBankRepository.save(questionBank));
     }

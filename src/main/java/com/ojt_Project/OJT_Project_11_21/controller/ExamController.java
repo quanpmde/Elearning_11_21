@@ -20,10 +20,17 @@ public class ExamController {
     @Autowired
     private ExamService examService;
 
-    @PostMapping
+    @PostMapping()
     public ApiResponse<ExamResponse> createNewExam(@RequestBody @Valid ExamRequest request) throws IOException {
         return ApiResponse.<ExamResponse>builder()
                 .result(examService.createNewExam(request))
+                .build();
+    }
+
+    @PostMapping("/file/{examId}")
+    public ApiResponse<ExamResponse> addQuestionsFromFileToExamOrBank(@RequestParam String filePath, @PathVariable int examId, @RequestParam boolean isForExam) throws IOException{
+        return ApiResponse.<ExamResponse>builder()
+                .result(examService.addQuestionsFromFileToExamOrBank(filePath,examId,isForExam))
                 .build();
     }
 
@@ -38,6 +45,20 @@ public class ExamController {
     public ApiResponse<ExamResponse> getExamById(@PathVariable int examId) {
         return ApiResponse.<ExamResponse>builder()
                 .result(examService.getExamById(examId))
+                .build();
+    }
+
+    @GetMapping("/user/{userId}")
+    public ApiResponse<List<ExamResponse>> getExamsByUserId(@PathVariable int userId) {
+        return ApiResponse.<List<ExamResponse>>builder()
+                .result(examService.getExamsByUserId(userId))
+                .build();
+    }
+
+    @GetMapping("/ten_question/{examId}")
+    public ApiResponse<ExamResponse> getTopTenQuestionsFromExam(@PathVariable int examId) {
+        return ApiResponse.<ExamResponse>builder()
+                .result(examService.getTopTenQuestionsFromExam(examId))
                 .build();
     }
 

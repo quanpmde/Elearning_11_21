@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,23 +30,46 @@ public class Exam {
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
-            name = "exam_question_bank",
+            name = "exam_questionBank",
             joinColumns = @JoinColumn(name = "examId"),
             inverseJoinColumns = @JoinColumn(name = "questionBankId")
     )
     private Collection<QuestionBank> questionBanks;
 
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "exam_question",
+            joinColumns = @JoinColumn(name = "examId"),
+            inverseJoinColumns = @JoinColumn(name = "questionId")
+    )
+    private List<Question> questions;
+
+    @OneToMany(mappedBy = "exam",cascade = CascadeType.ALL)
+    private List<Test> tests;
+
     @Column(name = "examName",  length = 255)
     private String examName;
 
-    @Column(name = "examCreateDate")
-    private LocalDateTime examCreateDate;
+    @Column(name = "examPassword", length = 32)
+    private String examPassword;
+
+    @Column(name = "examTotalQuestions")
+    private int examTotalQuestions;
+
+    @Column(name = "examStartDate")
+    private LocalDateTime examStartDate;
+
+    @Column(name = "examEndDate")
+    private LocalDateTime examEndDate;
 
     @Column(name = "examTimer")
     private int examTimer;
 
     @Column(name = "examAttempt")
     private int examAttempt;
+
+    @Column(name = "examStatus")
+    private String examStatus;
 
 
 }

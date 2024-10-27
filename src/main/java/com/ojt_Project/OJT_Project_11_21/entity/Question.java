@@ -3,6 +3,7 @@ package com.ojt_Project.OJT_Project_11_21.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @Getter
@@ -22,8 +23,14 @@ public class Question {
     @JoinColumn(name = "questionBankId",nullable = true)
     private QuestionBank questionBank;
 
+    @ManyToMany(mappedBy = "questions",cascade = CascadeType.ALL)
+    private List<Exam> exams;
+
     @OneToMany(mappedBy = "question",cascade = CascadeType.ALL)
     private List<Answer> answers;
+
+    @ManyToMany(mappedBy = "questions")
+    private Collection<Test> tests;
 
     @Column(name = "questionDescription")
     private String questionDescription;

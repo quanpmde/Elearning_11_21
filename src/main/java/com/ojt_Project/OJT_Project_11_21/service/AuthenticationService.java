@@ -52,7 +52,7 @@ public class AuthenticationService {
                     .fullName(name)
                     .userName(email)
                     .isBanned(0)
-                    .role(Role.STUDENT.name())
+                    .role(Role.USER.name())
                     .build();
             return userRepository.save(newUser);
         });

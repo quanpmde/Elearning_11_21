@@ -3,6 +3,8 @@ package com.ojt_Project.OJT_Project_11_21.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collection;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +22,9 @@ public class Answer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "questionId", nullable = false)
     private Question question;
+
+    @ManyToMany(mappedBy = "answers")
+    private Collection<Test> tests;
 
     @Column(name = "answerDescription")
     private String answerDescription;
