@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ExamService {
+    private static final String UPLOAD_DIR ="C:\\Users\\Admin\\Downloads\\OJT_Project_11_21\\img\\";
     @Autowired
     private ExamMapper examMapper;
     @Autowired
@@ -72,6 +73,9 @@ public class ExamService {
 
         // Tạo mới Exam từ request
         Exam exam = examMapper.toExam(request);
+
+        String relativeImagePath = FileUtil.saveImage(request.getExamImage(),UPLOAD_DIR);
+        exam.setExamImage(relativeImagePath);
 
         // Thiết lập trạng thái ban đầu của bài thi
         if (LocalDateTime.now().isBefore(exam.getExamStartDate())) {
@@ -236,9 +240,12 @@ public class ExamService {
         return examResponse;
     }
 
-    public ExamResponse updateExamById(int examId, ExamRequest request) {
+    public ExamResponse updateExamById(int examId, ExamRequest request) throws IOException{
         Exam exam = examRepository.findById(examId)
                 .orElseThrow(() -> new AppException(ErrorCode.EXAM_NOT_EXISTED));
+
+        String relativeImagePath = FileUtil.saveImage(request.getExamImage(),UPLOAD_DIR);
+        exam.setExamImage(relativeImagePath);
 
         // Kiểm tra các câu hỏi mới có hợp lệ hay không
         List<Question> selectedQuestions = questionRepository.findAllById(request.getQuestionIds());

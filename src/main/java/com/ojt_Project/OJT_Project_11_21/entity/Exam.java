@@ -68,7 +68,10 @@ public class Exam {
     @Column(name = "examAttempt")
     private int examAttempt;
 
-    @Column(name = "examStatus")
+    @Column(name = "examImage",length = 1000)
+    private String examImage;
+
+    @Column(name = "examStatus",length = 50)
     private String examStatus;
 
 

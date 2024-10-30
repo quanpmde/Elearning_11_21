@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -20,7 +21,7 @@ public class QuestionController {
     private QuestionService questionService;
 
     @PostMapping
-    public ApiResponse<QuestionResponse> createNewQuestion(@RequestBody @Valid QuestionRequest request) {
+    public ApiResponse<QuestionResponse> createNewQuestion(@ModelAttribute @RequestBody @Valid QuestionRequest request) throws IOException{
         return ApiResponse.<QuestionResponse>builder()
                 .result(questionService.createNewQuestion(request))
                 .build();
@@ -41,7 +42,7 @@ public class QuestionController {
     }
 
     @PutMapping("/{questionId}")
-    public ApiResponse<QuestionResponse> updateQuestionById(@PathVariable int questionId, @RequestBody @Valid QuestionRequest request) {
+    public ApiResponse<QuestionResponse> updateQuestionById(@PathVariable int questionId,@ModelAttribute @RequestBody @Valid QuestionRequest request) throws IOException {
         return ApiResponse.<QuestionResponse>builder()
                 .result(questionService.updateQuestionById(questionId, request))
                 .build();

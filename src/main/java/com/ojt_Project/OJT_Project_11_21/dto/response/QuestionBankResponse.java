@@ -18,5 +18,6 @@ public class QuestionBankResponse {
     private LocalDateTime questionBankDate;
     private String questionBankDescription;
     private String questionBankStatus;
+    private String questionBankImage;
     private List<QuestionResponse> questions;
 }

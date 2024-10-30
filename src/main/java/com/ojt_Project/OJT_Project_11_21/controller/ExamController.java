@@ -42,7 +42,7 @@ public class ExamController {
     }
 
     @GetMapping("/{examId}")
-    public ApiResponse<ExamResponse> getExamById(@PathVariable int examId) {
+    public ApiResponse<ExamResponse> getExamById(@ModelAttribute @PathVariable int examId) {
         return ApiResponse.<ExamResponse>builder()
                 .result(examService.getExamById(examId))
                 .build();
@@ -63,7 +63,7 @@ public class ExamController {
     }
 
     @PutMapping("/{examId}")
-    public ApiResponse<ExamResponse> updateExamById(@PathVariable int examId, @RequestBody @Valid ExamRequest request) {
+    public ApiResponse<ExamResponse> updateExamById(@PathVariable int examId,@ModelAttribute @RequestBody @Valid ExamRequest request) throws IOException{
         return ApiResponse.<ExamResponse>builder()
                 .result(examService.updateExamById(examId, request))
                 .build();

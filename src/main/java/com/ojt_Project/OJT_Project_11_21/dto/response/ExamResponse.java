@@ -23,6 +23,7 @@ public class ExamResponse {
     private int examAttempt;
     private LocalDateTime examStartDate;
     private LocalDateTime examEndDate;
+    private String examImage;
     private List<QuestionBankResponse> questionBanks;
     private List<QuestionResponse> questions;
     private String examStatus;

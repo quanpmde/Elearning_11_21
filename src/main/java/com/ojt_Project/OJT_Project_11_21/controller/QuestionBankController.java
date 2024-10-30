@@ -21,7 +21,7 @@ public class QuestionBankController {
     private QuestionBankService questionBankService;
 
     @PostMapping
-    public ApiResponse<QuestionBankResponse> createNewQuestionBank(@RequestBody @Valid QuestionBankRequest request) throws IOException{
+    public ApiResponse<QuestionBankResponse> createNewQuestionBank(@ModelAttribute @RequestBody @Valid QuestionBankRequest request) throws IOException{
         return ApiResponse.<QuestionBankResponse>builder()
                 .result(questionBankService.createNewQuestionBank(request))
                 .build();
@@ -42,7 +42,7 @@ public class QuestionBankController {
     }
 
     @PutMapping
-    public ApiResponse<QuestionBankResponse> updateQuestionBankById(@PathVariable int questionBankId,@RequestBody @Valid QuestionBankRequest request){
+    public ApiResponse<QuestionBankResponse> updateQuestionBankById(@PathVariable int questionBankId,@ModelAttribute @RequestBody @Valid QuestionBankRequest request) throws IOException{
         return ApiResponse.<QuestionBankResponse>builder()
                 .result(questionBankService.updateQuestionBankById(questionBankId,request))
                 .build();

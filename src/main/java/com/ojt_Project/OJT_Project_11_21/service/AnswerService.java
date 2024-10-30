@@ -9,6 +9,7 @@ import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.AnswerMapper;
 import com.ojt_Project.OJT_Project_11_21.repository.AnswerRepository;
 import com.ojt_Project.OJT_Project_11_21.repository.QuestionRepository;
+import com.ojt_Project.OJT_Project_11_21.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AnswerService {
+    private static final String UPLOAD_DIR ="C:\\Users\\Admin\\Downloads\\OJT_Project_11_21\\img\\";
     @Autowired
     private AnswerMapper answerMapper;
     @Autowired
@@ -32,6 +34,9 @@ public class AnswerService {
 
         Answer answer = answerMapper.toAnswer(request);
         answer.setQuestion(question);
+
+        String relativeImagePath = FileUtil.saveImage(request.getAnswerImage(),UPLOAD_DIR);
+        answer.setAnswerImage(relativeImagePath);
 
         AnswerResponse answerResponse = answerMapper.toAnswerResponse(answerRepository.save(answer));
         return answerResponse;
@@ -51,9 +56,13 @@ public class AnswerService {
         return answerResponse;
     }
 
-    public AnswerResponse updateAnswerById(int answerId, AnswerRequest request) {
+    public AnswerResponse updateAnswerById(int answerId, AnswerRequest request) throws IOException {
         Answer answer = answerRepository.findById(answerId)
                 .orElseThrow(() -> new AppException(ErrorCode.ANSWER_NOT_EXISTED));
+
+        String relativeImagePath = FileUtil.saveImage(request.getAnswerImage(),UPLOAD_DIR);
+        answer.setAnswerImage(relativeImagePath);
+
         answerMapper.updateAnswerFromRequest(answer, request);
         return answerMapper.toAnswerResponse(answerRepository.save(answer));
     }

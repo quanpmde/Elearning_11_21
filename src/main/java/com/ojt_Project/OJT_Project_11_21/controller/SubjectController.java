@@ -22,7 +22,7 @@ public class SubjectController {
     private SubjectService subjectService;
 
     @PostMapping
-    public ApiResponse<SubjectResponse> createNewSubject(@RequestBody @Valid SubjectRequest request) throws IOException{
+    public ApiResponse<SubjectResponse> createNewSubject(@ModelAttribute @RequestBody @Valid SubjectRequest request) throws IOException{
         return ApiResponse.<SubjectResponse>builder()
                 .result(subjectService.createNewSubject(request))
                 .build();
@@ -43,7 +43,7 @@ public class SubjectController {
     }
 
     @PutMapping("/{subjectId}")
-    public ApiResponse<SubjectResponse> updateSubject(@PathVariable int subjectId, @RequestBody @Valid SubjectRequest request) {
+    public ApiResponse<SubjectResponse> updateSubject(@PathVariable int subjectId,@ModelAttribute @RequestBody @Valid SubjectRequest request) throws IOException{
         return ApiResponse.<SubjectResponse>builder()
                 .result(subjectService.updateSubject(subjectId, request))
                 .build();

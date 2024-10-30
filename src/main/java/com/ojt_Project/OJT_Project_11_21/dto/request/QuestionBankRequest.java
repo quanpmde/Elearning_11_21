@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -18,4 +19,5 @@ public class QuestionBankRequest {
     private LocalDateTime questionBankDate;
     private String questionBankDescription;
     private String questionBankStatus;
+    private MultipartFile questionBankImage;
 }

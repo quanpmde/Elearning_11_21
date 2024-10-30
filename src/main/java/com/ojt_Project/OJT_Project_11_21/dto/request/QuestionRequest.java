@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -14,5 +15,5 @@ public class QuestionRequest {
     private int questionBankId;
     private String questionDescription;
     private String questionAnswerExplain;
-    private String questionImage;
+    private MultipartFile questionImage;
 }

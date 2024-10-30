@@ -21,7 +21,7 @@ public class AnswerController {
     private AnswerService answerService;
 
     @PostMapping
-    public ApiResponse<AnswerResponse> createNewAnswer(@RequestBody @Valid AnswerRequest request) throws IOException {
+    public ApiResponse<AnswerResponse> createNewAnswer(@ModelAttribute @RequestBody @Valid AnswerRequest request) throws IOException {
         return ApiResponse.<AnswerResponse>builder()
                 .result(answerService.createNewAnswer(request))
                 .build();
@@ -42,7 +42,7 @@ public class AnswerController {
     }
 
     @PutMapping("/{answerId}")
-    public ApiResponse<AnswerResponse> updateAnswerById(@PathVariable int answerId, @RequestBody @Valid AnswerRequest request) {
+    public ApiResponse<AnswerResponse> updateAnswerById(@PathVariable int answerId,@ModelAttribute @RequestBody @Valid AnswerRequest request) throws IOException{
         return ApiResponse.<AnswerResponse>builder()
                 .result(answerService.updateAnswerById(answerId, request))
                 .build();

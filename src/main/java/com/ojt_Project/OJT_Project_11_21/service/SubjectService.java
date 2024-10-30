@@ -7,6 +7,7 @@ import com.ojt_Project.OJT_Project_11_21.exception.AppException;
 import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.SubjectMapper;
 import com.ojt_Project.OJT_Project_11_21.repository.SubjectRepostiory;
+import com.ojt_Project.OJT_Project_11_21.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SubjectService {
+    private static final String UPLOAD_DIR ="C:\\Users\\Admin\\Downloads\\OJT_Project_11_21\\img\\";
     @Autowired
     private SubjectMapper subjectMapper;
     @Autowired
@@ -24,8 +26,11 @@ public class SubjectService {
 
     public SubjectResponse createNewSubject(SubjectRequest request) throws IOException {
         Subject subject = subjectMapper.toSubject(request);
-        Subject newSubject = subjectRepository.save(subject);
-        return subjectMapper.toSubjectResponse(newSubject);
+
+        String relativeImagePath = FileUtil.saveImage(request.getSubjectImage(),UPLOAD_DIR);
+        subject.setSubjectImage(relativeImagePath);
+
+        return subjectMapper.toSubjectResponse(subjectRepository.save(subject));
     }
 
     // Phương thức để lấy tất cả các subject
@@ -43,9 +48,12 @@ public class SubjectService {
     }
 
     // Phương thức để cập nhật subject theo subjectId
-    public SubjectResponse updateSubject(int subjectId, SubjectRequest request) {
+    public SubjectResponse updateSubject(int subjectId, SubjectRequest request) throws IOException{
         Subject subject = subjectRepository.findById(subjectId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_NOT_EXISTED));
+
+        String relativeImagePath = FileUtil.saveImage(request.getSubjectImage(),UPLOAD_DIR);
+        subject.setSubjectImage(relativeImagePath);
 
         subjectMapper.updateSubjectFromRequest(subject, request);
 

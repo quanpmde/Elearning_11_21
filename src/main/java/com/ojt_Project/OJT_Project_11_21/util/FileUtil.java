@@ -5,9 +5,13 @@ import com.ojt_Project.OJT_Project_11_21.entity.Question;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,5 +79,18 @@ public class FileUtil {
         }
 
         return questions;
+    }
+
+    public static String saveImage(MultipartFile image, String UPLOAD_DIR) throws IOException {
+        if (image != null && !image.isEmpty()) {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            String imagePath = UPLOAD_DIR + image.getOriginalFilename();
+            Files.write(Paths.get(imagePath), image.getBytes());
+            return "img/" + image.getOriginalFilename();
+        }
+        return null;
     }
 }

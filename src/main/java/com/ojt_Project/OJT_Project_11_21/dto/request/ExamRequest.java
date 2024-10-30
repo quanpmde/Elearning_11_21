@@ -4,6 +4,7 @@
     import lombok.Builder;
     import lombok.Data;
     import lombok.RequiredArgsConstructor;
+    import org.springframework.web.multipart.MultipartFile;
 
     import java.time.LocalDateTime;
     import java.util.List;
@@ -22,6 +23,7 @@
         private int examTimer;
         private int examAttempt;
         private String examStatus;
+        private MultipartFile examImage;
         private LocalDateTime examStartDate;
         private LocalDateTime examEndDate;
         private List<Integer> questionIds;

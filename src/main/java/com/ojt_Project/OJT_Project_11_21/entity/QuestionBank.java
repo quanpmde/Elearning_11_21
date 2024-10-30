@@ -44,4 +44,7 @@ public class QuestionBank {
 
     @Column(name = "questionBankStatus")
     private String questionBankStatus;
+
+    @Column(name = "questionBankImage")
+    private String questionBankImage;
 }

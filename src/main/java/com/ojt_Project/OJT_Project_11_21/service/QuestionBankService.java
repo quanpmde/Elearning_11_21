@@ -10,6 +10,7 @@ import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.QuestionBankMapper;
 import com.ojt_Project.OJT_Project_11_21.repository.QuestionBankRepository;
 import com.ojt_Project.OJT_Project_11_21.repository.UserRepository;
+import com.ojt_Project.OJT_Project_11_21.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class QuestionBankService {
+    private static final String UPLOAD_DIR ="C:\\Users\\Admin\\Downloads\\OJT_Project_11_21\\img\\";
     @Autowired
     private QuestionBankMapper questionBankMapper;
     @Autowired
@@ -37,6 +39,9 @@ public class QuestionBankService {
         QuestionBank questionBank = questionBankMapper.toQuestionBank(request);
         questionBank.setUser(user);  // Thiết lập user
         questionBank.setQuestionBankDate(LocalDateTime.now());
+
+        String relativeImagePath = FileUtil.saveImage(request.getQuestionBankImage(),UPLOAD_DIR);
+        questionBank.setQuestionBankImage(relativeImagePath);
 
         return questionBankMapper.toQuestionBankResponse(questionBankRepository.save(questionBank));
     }
@@ -60,7 +65,7 @@ public class QuestionBankService {
         return questionBankMapper.toQuestionBankResponse(questionBank);
     }
 
-    public QuestionBankResponse updateQuestionBankById(int questionBankId, QuestionBankRequest request) {
+    public QuestionBankResponse updateQuestionBankById(int questionBankId, QuestionBankRequest request) throws IOException{
         QuestionBank questionBank = questionBankRepository.findById(questionBankId)
                 .orElseThrow(() -> new AppException(ErrorCode.QUESTIONBANK_NOT_EXISTED));
 
@@ -69,6 +74,10 @@ public class QuestionBankService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
 
         questionBank.setUser(user);  // Cập nhật user
+
+        String relativeImagePath = FileUtil.saveImage(request.getQuestionBankImage(),UPLOAD_DIR);
+        questionBank.setQuestionBankImage(relativeImagePath);
+
         questionBankMapper.updateQuestionBankFromRequest(questionBank, request);
 
         return questionBankMapper.toQuestionBankResponse(questionBankRepository.save(questionBank));
