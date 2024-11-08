@@ -15,12 +15,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExamResponse {
     private int userId;
+    private int subjectId;
+    private String subjectName;
     private int examId;
     private String examName;
     private String examPassword;
     private int examTotalQuestions;
     private int examTimer;
     private int examAttempt;
+    private int examLikeCount;
+    private int examViewCount;
     private LocalDateTime examStartDate;
     private LocalDateTime examEndDate;
     private String examImage;

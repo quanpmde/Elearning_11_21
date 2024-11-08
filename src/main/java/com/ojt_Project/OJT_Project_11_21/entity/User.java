@@ -22,8 +22,8 @@ public class User {
     @Column(name = "userId")
     int userId;
 
-    @ManyToMany(mappedBy = "users")
-    private Collection<Exam> exams;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Exam> exams;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<QuestionBank> questionBanks;

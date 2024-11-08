@@ -21,6 +21,9 @@ public class Subject {
     @OneToMany (mappedBy = "subject",cascade = CascadeType.ALL)
     private List<QuestionBank> questionBanks;
 
+    @OneToMany (mappedBy = "subject",cascade = CascadeType.ALL)
+    private List<Exam> exams;
+
     @Column(name = "subjectName",length = 50)
     private String subjectName;
 

@@ -32,6 +32,7 @@ public class QuestionBankService {
 
     public QuestionBankResponse createNewQuestionBank(QuestionBankRequest request) throws IOException {
         // Kiểm tra xem userId có tồn tại không
+        System.out.println(request.getUserId());
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
 

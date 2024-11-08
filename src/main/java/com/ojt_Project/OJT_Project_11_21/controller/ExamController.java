@@ -21,7 +21,7 @@ public class ExamController {
     private ExamService examService;
 
     @PostMapping()
-    public ApiResponse<ExamResponse> createNewExam(@RequestBody @Valid ExamRequest request) throws IOException {
+    public ApiResponse<ExamResponse> createNewExam(@ModelAttribute @RequestBody @Valid ExamRequest request) throws IOException {
         return ApiResponse.<ExamResponse>builder()
                 .result(examService.createNewExam(request))
                 .build();
@@ -52,6 +52,20 @@ public class ExamController {
     public ApiResponse<List<ExamResponse>> getExamsByUserId(@PathVariable int userId) {
         return ApiResponse.<List<ExamResponse>>builder()
                 .result(examService.getExamsByUserId(userId))
+                .build();
+    }
+
+    @GetMapping("/subject/{subjectId}")
+    public ApiResponse<List<ExamResponse>> getRecentExamsBySubjectId(@PathVariable int subjectId) {
+        return ApiResponse.<List<ExamResponse>>builder()
+                .result(examService.getRecentExamsBySubjectId(subjectId))
+                .build();
+    }
+
+    @GetMapping("/subject/all/{subjectId}")
+    public ApiResponse<List<ExamResponse>> getAllExamsBySubjectId(@PathVariable int subjectId) {
+        return ApiResponse.<List<ExamResponse>>builder()
+                .result(examService.getAllExamsBySubjectId(subjectId))
                 .build();
     }
 

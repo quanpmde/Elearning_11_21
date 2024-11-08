@@ -16,6 +16,7 @@
     @RequiredArgsConstructor
     public class ExamRequest {
         private int userId;
+        private int subjectId;
         private int examId;
         private String examName;
         private String examPassword;
@@ -23,6 +24,8 @@
         private int examTimer;
         private int examAttempt;
         private String examStatus;
+        private int examLikeCount;
+        private int examViewCount;
         private MultipartFile examImage;
         private LocalDateTime examStartDate;
         private LocalDateTime examEndDate;

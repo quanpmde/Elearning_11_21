@@ -20,13 +20,13 @@ public class Exam {
     @Column(name = "examId")
     private int examId;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "exam_user",
-            joinColumns = @JoinColumn(name = "userId"),
-            inverseJoinColumns = @JoinColumn(name = "examId")
-    )
-    private Collection<User> users;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subjectId",nullable = true)
+    private Subject subject;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId",nullable = true)
+    private User user;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -67,6 +67,12 @@ public class Exam {
 
     @Column(name = "examAttempt")
     private int examAttempt;
+
+    @Column(name = "examViewCount")
+    private int examViewCount;
+
+    @Column(name = "examLikeCount")
+    private int examLikeCount;
 
     @Column(name = "examImage",length = 1000)
     private String examImage;

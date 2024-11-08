@@ -3,19 +3,13 @@ package com.ojt_Project.OJT_Project_11_21.service;
 import com.ojt_Project.OJT_Project_11_21.dto.request.ExamRequest;
 import com.ojt_Project.OJT_Project_11_21.dto.response.ExamResponse;
 import com.ojt_Project.OJT_Project_11_21.dto.response.QuestionResponse;
-import com.ojt_Project.OJT_Project_11_21.entity.Exam;
-import com.ojt_Project.OJT_Project_11_21.entity.Question;
-import com.ojt_Project.OJT_Project_11_21.entity.QuestionBank;
-import com.ojt_Project.OJT_Project_11_21.entity.User;
+import com.ojt_Project.OJT_Project_11_21.entity.*;
 import com.ojt_Project.OJT_Project_11_21.exception.AppException;
 import com.ojt_Project.OJT_Project_11_21.exception.ErrorCode;
 import com.ojt_Project.OJT_Project_11_21.mapper.ExamMapper;
 import com.ojt_Project.OJT_Project_11_21.mapper.QuestionBankMapper;
 import com.ojt_Project.OJT_Project_11_21.mapper.QuestionMapper;
-import com.ojt_Project.OJT_Project_11_21.repository.ExamRepository;
-import com.ojt_Project.OJT_Project_11_21.repository.QuestionBankRepository;
-import com.ojt_Project.OJT_Project_11_21.repository.QuestionRepository;
-import com.ojt_Project.OJT_Project_11_21.repository.UserRepository;
+import com.ojt_Project.OJT_Project_11_21.repository.*;
 import com.ojt_Project.OJT_Project_11_21.util.DateUtil;
 import com.ojt_Project.OJT_Project_11_21.util.FileUtil;
 import lombok.RequiredArgsConstructor;
@@ -46,12 +40,18 @@ public class ExamService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private SubjectRepostiory subjectRepository;
+    @Autowired
     private DateUtil dateUtil;
 
     public ExamResponse createNewExam(ExamRequest request) throws IOException {
         // Tìm user theo userId
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
+
+        //Tìm subject theo subjectId
+        Subject subject = subjectRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_NOT_EXISTED));
 
         // Lấy tất cả các QuestionBank của user
         List<QuestionBank> userQuestionBanks = questionBankRepository.findByUser(user);
@@ -86,7 +86,8 @@ public class ExamService {
             exam.setExamStatus("active");
         }
 
-        exam.setUsers(List.of(user));
+        exam.setUser(user);
+        exam.setSubject(subject);
         exam.setQuestions(selectedQuestions);
 
         // Thêm các câu hỏi random từ questionBank
@@ -104,6 +105,8 @@ public class ExamService {
 
         ExamResponse examResponse = examMapper.toExamResponse(examRepository.save(exam));
         examResponse.setUserId(user.getUserId());
+        examResponse.setSubjectId(subject.getSubjectId());
+        examResponse.setSubjectName(subject.getSubjectName());
 
         return examResponse;
     }
@@ -195,6 +198,9 @@ public class ExamService {
 
         // Ánh xạ vào DTO để trả về cho người dùng
         ExamResponse examResponse = examMapper.toExamResponse(exam);
+        examResponse.setUserId(exam.getUser().getUserId());
+        examResponse.setSubjectId(exam.getSubject().getSubjectId());
+        examResponse.setSubjectName(exam.getSubject().getSubjectName());
 
         // Ánh xạ danh sách questionBanks đã tải đủ dữ liệu
         examResponse.setQuestionBanks(exam.getQuestionBanks().stream()
@@ -210,13 +216,41 @@ public class ExamService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_IS_NOT_FOUNDED));
 
         // Tìm các exam thuộc về user này
-        List<Exam> exams = examRepository.findByUsersContaining(user);
+        List<Exam> exams = examRepository.findByUser(user);
 
         // Chuyển đổi danh sách exam thành danh sách ExamResponse
         return exams.stream()
                 .map(examMapper::toExamResponse)
                 .collect(Collectors.toList());
     }
+
+    public List<ExamResponse> getRecentExamsBySubjectId(int subjectId) {
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_NOT_EXISTED));
+
+        List<Exam> exams = examRepository.findTop5BySubjectOrderByExamStartDateDesc(subject);
+
+        return exams.stream()
+                .map(examMapper::toExamResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<ExamResponse> getAllExamsBySubjectId(int subjectId) {
+        // Tìm subject theo subjectId
+        Subject subject = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new AppException(ErrorCode.SUBJECT_NOT_EXISTED));
+
+        // Tìm các exam thuộc về subject này
+        List<Exam> exams = examRepository.findBySubject_SubjectId(subjectId);
+
+        // Chuyển đổi danh sách exam thành danh sách ExamResponse
+        return exams.stream()
+                .map(examMapper::toExamResponse)
+                .collect(Collectors.toList());
+    }
+
+
 
 
     public ExamResponse getTopTenQuestionsFromExam(int examId) {
