@@ -16,6 +16,7 @@
     @RequiredArgsConstructor
     public class ExamRequest {
         private int userId;
+        private String fullName;
         private int subjectId;
         private int examId;
         private String examName;

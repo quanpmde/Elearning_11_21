@@ -89,6 +89,7 @@ public class ExamService {
         exam.setUser(user);
         exam.setSubject(subject);
         exam.setQuestions(selectedQuestions);
+        exam.setExamTotalQuestions(selectedQuestions.size());
 
         // Thêm các câu hỏi random từ questionBank
         if (request.getRandomQuestionBanks() != null && !request.getRandomQuestionBanks().isEmpty()) {
@@ -105,6 +106,7 @@ public class ExamService {
 
         ExamResponse examResponse = examMapper.toExamResponse(examRepository.save(exam));
         examResponse.setUserId(user.getUserId());
+        examResponse.setFullName(user.getFullName());
         examResponse.setSubjectId(subject.getSubjectId());
         examResponse.setSubjectName(subject.getSubjectName());
 
@@ -172,8 +174,18 @@ public class ExamService {
     public List<ExamResponse> getAllExams() {
         List<Exam> exams = examRepository.findAll();
         return exams.stream()
-                .map(examMapper::toExamResponse)
-                .toList();
+                .map(exam -> {
+                    ExamResponse examResponse = examMapper.toExamResponse(exam);
+
+                    // Cập nhật các trường bị thiếu
+                    examResponse.setUserId(exam.getUser().getUserId());
+                    examResponse.setFullName(exam.getUser().getFullName());
+                    examResponse.setSubjectId(exam.getSubject().getSubjectId());
+                    examResponse.setSubjectName(exam.getSubject().getSubjectName());
+
+                    return examResponse;
+                })
+                .collect(Collectors.toList());
     }
 
     public ExamResponse getExamById(int examId) {
@@ -199,6 +211,7 @@ public class ExamService {
         // Ánh xạ vào DTO để trả về cho người dùng
         ExamResponse examResponse = examMapper.toExamResponse(exam);
         examResponse.setUserId(exam.getUser().getUserId());
+        examResponse.setFullName(exam.getUser().getFullName());
         examResponse.setSubjectId(exam.getSubject().getSubjectId());
         examResponse.setSubjectName(exam.getSubject().getSubjectName());
 
@@ -246,7 +259,17 @@ public class ExamService {
 
         // Chuyển đổi danh sách exam thành danh sách ExamResponse
         return exams.stream()
-                .map(examMapper::toExamResponse)
+                .map(exam -> {
+                    ExamResponse examResponse = examMapper.toExamResponse(exam);
+
+                    // Cập nhật các trường bị thiếu
+                    examResponse.setUserId(exam.getUser().getUserId());
+                    examResponse.setFullName(exam.getUser().getFullName());
+                    examResponse.setSubjectId(exam.getSubject().getSubjectId());
+                    examResponse.setSubjectName(exam.getSubject().getSubjectName());
+
+                    return examResponse;
+                })
                 .collect(Collectors.toList());
     }
 

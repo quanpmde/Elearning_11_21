@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ExamResponse {
     private int userId;
+    private String fullName;
     private int subjectId;
     private String subjectName;
     private int examId;
